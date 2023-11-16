@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>HomePage</title>
+</head>
+<body>
+<h1>Student List</h1>
+<a th:href="@{/student/add}">Add New <Student></Student></a>
+<form th:action="@{/student/search}" method="get">
+    <input type="text" name="e">
+    <button>Search</button>
+</form>
+<br>
+<span th:text="${message}"></span>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Address</th>
+        <th>Image</th>
+        <th colspan="2">Action</th>
+    </tr>
+    <tr th:each="item: ${students}">
+        <td th:text="${item.id}"></td>
+        <td th:text="${item.name}"></td>
+        <td th:text="${item.address}"></td>
+        <td><img th:src="@{'' + ${item.image}}" style="width: 100px; height: 100px"></td>
+        <td><button><a th:href="@{/student/edit/{id}(id=${item.id})}">Update</a></button></td>
+        <td><button>Delete</button></td>
+    </tr>
+</table>
+</body>
+</html>
