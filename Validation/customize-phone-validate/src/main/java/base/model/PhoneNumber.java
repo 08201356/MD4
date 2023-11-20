@@ -3,7 +3,8 @@ package base.model;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
-import org.springframework.validation.Validator;
+
+import javax.validation.Validator;
 
 @Component
 public class PhoneNumber implements Validator {
@@ -24,6 +25,7 @@ public class PhoneNumber implements Validator {
 
     @Override
     public void validate(Object target, Errors errors) {
+
         PhoneNumber phoneNumber = (PhoneNumber) target;
         String number = phoneNumber.getNumber();
         ValidationUtils.rejectIfEmpty(errors, "number", "number.empty");
