@@ -20,8 +20,8 @@ public class ProductService implements IProductService{
         return iProductRepository.findById(id);
     }
     @Override
-    public void save(Product product){
-        iProductRepository.save(product);
+    public Product save(Product product){
+        return iProductRepository.save(product);
     }
     @Override
     public void delete(int id){

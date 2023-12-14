@@ -3,70 +3,51 @@ package base.controller;
 import base.model.Product;
 import base.service.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
 import java.util.Optional;
 
-@Controller
+@RestController
 @RequestMapping("/products")
+@CrossOrigin("*")
 public class ProductController {
     @Autowired
     private IProductService iProductService;
-    @GetMapping("/create")
-    public ModelAndView showCreateForm(){
-        ModelAndView modelAndView = new ModelAndView("/product/create");
-        modelAndView.addObject("product",new Product());
-        return modelAndView;
-    }
-    @PostMapping("/create")
-    public ModelAndView saveProduct(@ModelAttribute("product") Product product){
-        iProductService.save(product);
-        ModelAndView modelAndView =new ModelAndView("/product/create");
-        modelAndView.addObject("product", new Product());
-        modelAndView.addObject("message", "New Product Added");
-        return modelAndView;
-    }
-    @GetMapping("/products")
-    public ModelAndView listProducts(){
-        ModelAndView modelAndView = new ModelAndView("/product/list");
-        modelAndView.addObject("product", iProductService.findAll());
-        return modelAndView;
-    }
-    @GetMapping("/update/{id}")
-    public ModelAndView showEditForm(@PathVariable int id){
-        Optional<Product> product = iProductService.findById(id);
-        if(product.isPresent()){
-            ModelAndView modelAndView = new ModelAndView("/product/update");
-            modelAndView.addObject("product", product.get());
-            return modelAndView;
-        } else {
-            return new ModelAndView("/error_404");
+    @GetMapping
+    public ResponseEntity<Iterable<Product>> showList(){
+        List<Product> productList = (List<Product>) iProductService.findAll();
+        if(productList.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
-    @PostMapping("/update")
-    public ModelAndView updateProduct(@ModelAttribute("product") Product product){
-        iProductService.save(product);
-        ModelAndView modelAndView = new ModelAndView("/product/update");
-        modelAndView.addObject("product", product);
-        modelAndView.addObject("message", "Product updated");
-        return modelAndView;
-    }
-    @GetMapping("/delete/{id}")
-    public ModelAndView showDeleteForm(@PathVariable int id){
+    @GetMapping("/{id}")
+    public ResponseEntity<Product> findProductById(@PathVariable int id){
         Optional<Product> product = iProductService.findById(id);
-        if(product.isPresent()){
-            ModelAndView modelAndView =new ModelAndView("/product/delete");
-            modelAndView.addObject("product", product.get());
-            return modelAndView;
-        } else {
-            return new ModelAndView("/error_404");
+        if (product.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(product.get() ,HttpStatus.OK);
     }
-    @PostMapping("/delete")
-    public String deleteProduct(@ModelAttribute("product") Product product){
-        iProductService.delete(product.getId());
-        return "redirect:/products";
+    @PostMapping
+    public ResponseEntity<Product> save(@RequestBody Product product){
+        return new ResponseEntity<>(iProductService.save(product), HttpStatus.CREATED);
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> update(@PathVariable int id, @RequestBody Product product){
+        Optional<Product> productOptional = iProductService.findById(id);
+        if(productOptional.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        product.setId(productOptional.get().getId());
+        return new ResponseEntity<>(iProductService.save(product), HttpStatus.OK);
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Product> delete(@PathVariable int id){
+        iProductService.delete(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
